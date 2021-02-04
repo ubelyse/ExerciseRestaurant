@@ -137,7 +137,7 @@ public class FirebaseRestaurantListAdapter extends FirebaseRecyclerAdapter<Resta
     public boolean onItemMove(int fromPosition, int toPosition){
         Collections.swap(mRestaurants, fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
-        setIndexInForebase();
+        setIndexInFirebase();
         return false;
     }
 
@@ -147,12 +147,11 @@ public class FirebaseRestaurantListAdapter extends FirebaseRecyclerAdapter<Resta
         getRef(position).removeValue();
     }
 
-    private void setIndexInForebase(){
+    private void setIndexInFirebase(){
         for(Restaurant restaurant: mRestaurants){
             int index = mRestaurants.indexOf(restaurant);
-            DatabaseReference mReference = getRef(index);
-            restaurant.setIndex(Integer.toString(index));
-            mReference.setValue(restaurant);
+            DatabaseReference ref = getRef(index);
+            ref.child("index").setValue(Integer.toString(index));
         }
     }
 
