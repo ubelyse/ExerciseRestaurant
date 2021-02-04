@@ -1,9 +1,11 @@
 package com.example.exerciserestaurant.ui;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.os.Bundle;
+
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,6 +25,7 @@ import com.example.exerciserestaurant.util.OnRestaurantSelectedListener;
 
 import org.parceler.Parcels;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -31,11 +34,10 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import java.io.IOException;
-
 public class RestaurantsActivity extends AppCompatActivity implements OnRestaurantSelectedListener {
     private Integer mPosition;
     ArrayList<Restaurant> mRestaurants;
+    String mSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class RestaurantsActivity extends AppCompatActivity implements OnRestaura
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
                 mPosition = savedInstanceState.getInt(Constants.EXTRA_KEY_POSITION);
                 mRestaurants = Parcels.unwrap(savedInstanceState.getParcelable(Constants.EXTRA_KEY_RESTAURANTS));
+                mSource = savedInstanceState.getString(Constants.KEY_SOURCE);
 
                 if (mPosition != null && mRestaurants != null){
                     Intent intent = new Intent(this, RestaurantDetailActivity.class);
@@ -63,13 +66,15 @@ public class RestaurantsActivity extends AppCompatActivity implements OnRestaura
         if (mPosition != null && mRestaurants != null){
             outState.putInt(Constants.EXTRA_KEY_POSITION, mPosition);
             outState.putParcelable(Constants.EXTRA_KEY_RESTAURANTS, Parcels.wrap(mRestaurants));
+            outState.putString(Constants.KEY_SOURCE, mSource);
         }
     }
 
     @Override
-    public void onRestaurantSelected(Integer position, ArrayList<Restaurant> restaurants){
+    public void onRestaurantSelected(Integer position, ArrayList<Restaurant> restaurants, String source){
         mPosition = position;
         mRestaurants = restaurants;
+        mSource = source;
     }
 
 }

@@ -3,21 +3,16 @@ package com.example.exerciserestaurant.adapter;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.exerciserestaurant.Constants;
 import com.example.exerciserestaurant.R;
 import com.example.exerciserestaurant.models.Restaurant;
 import com.example.exerciserestaurant.util.ItemTouchHelperViewHolder;
 import com.squareup.picasso.Picasso;
-
 
 public class FirebaseRestaurantViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder {
     View mView;
