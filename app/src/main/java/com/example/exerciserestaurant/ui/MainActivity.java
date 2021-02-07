@@ -1,38 +1,28 @@
-package com.example.exerciserestaurant.ui;
+package com.example.tnac.Activities;
 
-
-import android.graphics.Typeface;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
-
-import android.content.Intent;
-
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.Button;
 import android.widget.TabHost;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
-import com.example.exerciserestaurant.Constants;
-import com.example.exerciserestaurant.R;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.example.tnac.Adapters.ViewPagerAdapter;
+import com.example.tnac.Fragments.FriendsFragment;
+import com.example.tnac.Fragments.MessagesFragment;
+import com.example.tnac.Fragments.PersonalFragment;
+import com.example.tnac.Fragments.SettingsFragment;
+import com.example.tnac.R;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import java.util.List;
+import java.util.Vector;
 
 public class MainActivity extends AppCompatActivity implements TabHost.OnTabChangeListener, ViewPager.OnPageChangeListener{
 
@@ -81,30 +71,30 @@ public class MainActivity extends AppCompatActivity implements TabHost.OnTabChan
     }
 
     private void initializeViewPager() {
-        List<Fragment> fragments = new Vector<Fragment>();
+       List<Fragment> fragments = new Vector<Fragment>();
 
-        // transfer data from MainActivity via PersonalFragment
-        bundle = getIntent().getExtras();
+            // transfer data from MainActivity via PersonalFragment
+            bundle = getIntent().getExtras();
         String uid = null;
         if (bundle != null) {
             uid = bundle.getString("UID");
         }
 
         Bundle info = new Bundle();
-        info.putString("UID", uid);
-        PersonalFragment personalFragment = new PersonalFragment();
-        personalFragment.setArguments(info); //
+            info.putString("UID", uid);
+            PersonalFragment personalFragment = new PersonalFragment();
+            personalFragment.setArguments(info); //
 
-        fragments.add(new MessagesFragment());
-        fragments.add(new FriendsFragment());
-        fragments.add(personalFragment);
-        fragments.add(new SettingsFragment());
+            fragments.add(new MessagesFragment());
+            fragments.add(new FriendsFragment());
+            fragments.add(personalFragment);
+            fragments.add(new SettingsFragment());
 
-        this.myViewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), fragments);
-        this.viewPager = (ViewPager) super.findViewById(R.id.viewPager);
-        this.viewPager.setAdapter(this.myViewPagerAdapter);
-        this.viewPager.setOnPageChangeListener(this);
-        onRestart();
+            this.myViewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), fragments);
+            this.viewPager = (ViewPager) super.findViewById(R.id.viewPager);
+            this.viewPager.setAdapter(this.myViewPagerAdapter);
+            this.viewPager.setOnPageChangeListener(this);
+            onRestart();
 
     }
 
