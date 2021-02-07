@@ -98,15 +98,10 @@ public class RestaurantListFragment extends Fragment {
                     @Override
                     public void run() {
                         mAdapter = new RestaurantListAdapter(getActivity(), restaurants, mOnRestaurantSelectedListener);
-                        // Line above states `getActivity()` instead of previous
-                        // 'getApplicationContext()' because fragments do not have own context,
-                        // must instead inherit it from corresponding activity.
+
                         mRecyclerView.setAdapter(mAdapter);
                         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-                        // Line above states 'new LinearLayoutManager(getActivity());' instead of previous
-                        // 'new LinearLayoutManager(RestaurantListActivity.this);' when method resided
-                        // in RestaurantListActivity because Fragments do not have context
-                        // and must instead inherit from corresponding activity.
+
                         mRecyclerView.setLayoutManager(layoutManager);
                         mRecyclerView.setHasFixedSize(true);
                     }

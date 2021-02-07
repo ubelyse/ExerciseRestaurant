@@ -14,10 +14,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Button;
+import android.widget.TabHost;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 
 import com.example.exerciserestaurant.Constants;
 import com.example.exerciserestaurant.R;
@@ -32,93 +34,127 @@ import com.google.firebase.database.ValueEventListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-    private static final String TAG = MainActivity.class.getSimpleName();
-    @BindView(R.id.findRestaurantsButton) Button mFindRestaurantsButton;
-    @BindView(R.id.appNameTextView) TextView mAppNameTextView;
-    @BindView(R.id.savedRestaurantsButton) Button mSavedRestaurantsButton;
-    private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
+public class MainActivity extends AppCompatActivity implements TabHost.OnTabChangeListener, ViewPager.OnPageChangeListener{
+
+    private TabHost tabHost;
+    private ViewPager viewPager;
+    private ViewPagerAdapter myViewPagerAdapter;
+    private int i = 0;
+    private Bundle bundle;
+
+
+    // fake content for tabhost
+    class FakeContent implements TabHost.TabContentFactory {
+        private final Context mContext;
+
+        public FakeContent(Context context) {
+            mContext = context;
+        }
+
+        @Override
+        public View createTabContent(String tag) {
+            View v = new View(mContext);
+            v.setMinimumHeight(0);
+            v.setMinimumWidth(0);
+            return v;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
 
-        mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener(){
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if(user != null){
-                    getSupportActionBar().setTitle("Welcome, " + user.getDisplayName() + "!");
-                }else {
+        i++;
 
-                }
-            }
-        };
+        // init tabhost
+        this.initializeTabHost(savedInstanceState);
 
-        Typeface caviarFont = Typeface.createFromAsset(getAssets(), "fonts/CaviarDreams.ttf");
-        mAppNameTextView.setTypeface(caviarFont);
-        mFindRestaurantsButton.setOnClickListener(this);
-        mSavedRestaurantsButton.setOnClickListener(this);
-    }
+        // init ViewPager
+        this.initializeViewPager();
 
-    @Override
-    public void onClick(View v){
-        if(v == mFindRestaurantsButton) {
-            Intent intent = new Intent(MainActivity.this, RestaurantsActivity.class);
-            startActivity(intent);
-        }
-        if (v == mSavedRestaurantsButton) {
-            Intent intent = new Intent(MainActivity.this, SavedRestaurantListActivity.class);
-            startActivity(intent);
+        bundle = getIntent().getExtras();
+        if(bundle != null) {
+            int tab = bundle.getInt("ReturnTab");
+            tabHost.setCurrentTab(tab);
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
+    private void initializeViewPager() {
+        List<Fragment> fragments = new Vector<Fragment>();
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        int id = item.getItemId();
-        if(id == R.id.action_logout){
-            logout();
-            return true;
+        // transfer data from MainActivity via PersonalFragment
+        bundle = getIntent().getExtras();
+        String uid = null;
+        if (bundle != null) {
+            uid = bundle.getString("UID");
         }
-        return super.onOptionsItemSelected(item);
+
+        Bundle info = new Bundle();
+        info.putString("UID", uid);
+        PersonalFragment personalFragment = new PersonalFragment();
+        personalFragment.setArguments(info); //
+
+        fragments.add(new MessagesFragment());
+        fragments.add(new FriendsFragment());
+        fragments.add(personalFragment);
+        fragments.add(new SettingsFragment());
+
+        this.myViewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), fragments);
+        this.viewPager = (ViewPager) super.findViewById(R.id.viewPager);
+        this.viewPager.setAdapter(this.myViewPagerAdapter);
+        this.viewPager.setOnPageChangeListener(this);
+        onRestart();
+
     }
 
-    private void logout(){
-        FirebaseAuth.getInstance().signOut();
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+    private void initializeTabHost(Bundle args) {
+
+        tabHost = (TabHost) findViewById(android.R.id.tabhost);
+        tabHost.setup();
+
+        TabHost.TabSpec tabMessages = tabHost.newTabSpec("Message");
+        tabMessages.setIndicator("",getResources().getDrawable(R.drawable.icon_messages_selector));
+        tabMessages.setContent(new FakeContent(MainActivity.this));
+        tabHost.addTab(tabMessages);
+
+        TabHost.TabSpec tabFriends = tabHost.newTabSpec("Friend");
+        tabFriends.setIndicator("",getResources().getDrawable(R.drawable.icon_friends_selector));
+        tabFriends.setContent(new FakeContent(MainActivity.this));
+        tabHost.addTab(tabFriends);
+
+        TabHost.TabSpec tabPersonal = tabHost.newTabSpec("I");
+        tabPersonal.setIndicator("",getResources().getDrawable(R.drawable.icon_personal_selector));
+        tabPersonal.setContent(new FakeContent(MainActivity.this));
+        tabHost.addTab(tabPersonal);
+
+        TabHost.TabSpec tabSettings = tabHost.newTabSpec("Setting");
+        tabSettings.setIndicator("",getResources().getDrawable(R.drawable.icon_settings_selector));
+        tabSettings.setContent(new FakeContent(MainActivity.this));
+        tabHost.addTab(tabSettings);
+
+
+        tabHost.setOnTabChangedListener(this);
     }
 
     @Override
-    public void onStart(){
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
     }
 
     @Override
-    public void onStop(){
-        super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
+    public void onPageSelected(int position) {
+        this.tabHost.setCurrentTab(position);
     }
+
     @Override
-    public void onResume(){
-        super.onResume();
-        mAuth.addAuthStateListener(mAuthListener);
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    @Override
+    public void onTabChanged(String tabId) {
+        int pos = this.tabHost.getCurrentTab();
+        this.viewPager.setCurrentItem(pos);
     }
 }
